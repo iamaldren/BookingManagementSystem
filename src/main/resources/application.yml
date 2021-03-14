@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: BookingManagementSystem
+  redis:
+    url: redis://localhost:6379
