@@ -3,11 +3,13 @@ package com.aldren.service;
 import com.aldren.entity.Book;
 import com.aldren.repository.BookRepository;
 import com.aldren.util.AppConstants;
+import com.aldren.util.BookUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class BookService {
@@ -25,12 +27,14 @@ public class BookService {
             case AppConstants.QUERY_BY_NAME:
                 return Optional.ofNullable(bookRepository.findByName(value));
             default:
-                return Optional.empty();
+                return Optional.ofNullable((List<Book>) bookRepository.findAll());
         }
     }
 
-    public Optional<List<Book>> getBooks() {
-        return Optional.ofNullable((List<Book>) bookRepository.findAll());
+    public void saveBook(Book book) {
+        book.setId(UUID.randomUUID().toString());
+        book.setIsbn(BookUtil.makeISBN());
+        bookRepository.save(book);
     }
 
 }

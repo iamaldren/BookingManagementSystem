@@ -3,13 +3,11 @@ package com.aldren.controller;
 import com.aldren.entity.Book;
 import com.aldren.exception.RecordNotFoundException;
 import com.aldren.service.BookService;
+import com.aldren.util.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +25,29 @@ public class BookController {
 
     @GetMapping(value = "/books")
     public ResponseEntity getBooks(@RequestParam Optional<String> name, @RequestParam Optional<String> isbn) throws RecordNotFoundException {
-        List<Book> books = new ArrayList<>();
+        String query = AppConstants.QUERY_ALL;
+        String value = "";
 
         if(isbn.isPresent()) {
-
+            query = AppConstants.QUERY_BY_ISBN;
+            value = isbn.get();
         }
 
-        if(name.isPresent()) {
-
+        if(name.isPresent() && !query.equals(AppConstants.QUERY_BY_ISBN)) {
+            query = AppConstants.QUERY_BY_NAME;
+            value = name.get();
         }
 
-        books = bookService.getBooks().orElseThrow(() -> new RecordNotFoundException("No book records exist"));
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(bookService
+                        .getBookBy(query, value)
+                        .orElseThrow(() -> new RecordNotFoundException("No book records exist")));
+    }
 
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(books);
+    @PostMapping(value = "/books")
+    public void saveBook(@RequestBody Book book) {
+        bookService.saveBook(book);
     }
 
 }

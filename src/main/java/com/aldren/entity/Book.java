@@ -1,15 +1,14 @@
 package com.aldren.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
-@AllArgsConstructor
 @Getter
-@Builder
+@Setter
 public class Book {
 
-    private long id;
+    private String id;
     private String isbn;
     private String name;
     private String author;
