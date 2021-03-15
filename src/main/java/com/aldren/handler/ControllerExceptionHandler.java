@@ -1,5 +1,6 @@
 package com.aldren.handler;
 
+import com.aldren.exception.BadRequestException;
 import com.aldren.exception.RecordNotFoundException;
 import com.aldren.model.ErrorResponse;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -25,6 +26,18 @@ public class ControllerExceptionHandler {
                 .timestamp(DateFormatUtils.format(new Date(), TIMESTAMP_FORMAT))
                 .status(HttpStatus.NOT_FOUND.value())
                 .description(HttpStatus.NOT_FOUND.name())
+                .information(e.getLocalizedMessage())
+                .build();
+    }
+
+    @ExceptionHandler({BadRequestException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody
+    ErrorResponse handleBadRequestException(Exception e, WebRequest u) {
+        return ErrorResponse.builder()
+                .timestamp(DateFormatUtils.format(new Date(), TIMESTAMP_FORMAT))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .description(HttpStatus.BAD_REQUEST.name())
                 .information(e.getLocalizedMessage())
                 .build();
     }
