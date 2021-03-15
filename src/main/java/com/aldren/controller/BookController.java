@@ -9,8 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -48,6 +46,16 @@ public class BookController {
     @PostMapping(value = "/books")
     public void saveBook(@RequestBody Book book) {
         bookService.saveBook(book);
+    }
+
+    @PutMapping(value = "/books")
+    public void updateBook(@RequestBody Book book) throws RecordNotFoundException {
+        bookService.updateBook(book);
+    }
+
+    @DeleteMapping(value = "/books/{id}")
+    public void deleteBook(@PathVariable String id) throws RecordNotFoundException {
+        bookService.deleteBook(id);
     }
 
 }

@@ -3,6 +3,7 @@ package com.aldren.entity;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @Setter
@@ -10,7 +11,9 @@ import org.springframework.data.redis.core.RedisHash;
 public class Book {
 
     private String id;
+    @Indexed
     private String isbn;
+    @Indexed
     private String name;
     private String author;
     private String publishDate;
