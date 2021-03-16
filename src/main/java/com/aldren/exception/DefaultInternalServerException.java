@@ -1,5 +1,8 @@
 package com.aldren.exception;
 
+import lombok.Getter;
+
+@Getter
 public class DefaultInternalServerException extends Exception {
 
     private String message;

@@ -51,7 +51,7 @@ public class BookService {
         log.info(String.format("Saving book %1$s with ID of %2$s.", book.getName(), book.getId()));
 
         if(book.getIsbn() == null) {
-            log.warn(String.format("No ISBN entered for %s, generating for the entry.", book.getName()));
+            log.warn(String.format("No ISBN entered for %s. Randomly generating one for the entry.", book.getName()));
             book.setIsbn(BookUtil.makeISBN());
         }
 
@@ -61,7 +61,7 @@ public class BookService {
 
     public void updateBook(Book book) throws RecordNotFoundException, BadRequestException {
         if (book.getId() == null) {
-            throw new BadRequestException("Book ID can not be null or empty");
+            throw new BadRequestException("Book ID can not be null or empty when updating an entry");
         }
 
         log.info(String.format("Updating book with ID of %s.", book.getId()));

@@ -84,7 +84,7 @@ public class BookController {
         try {
             bookService.updateBook(book);
         } catch (RecordNotFoundException | BadRequestException e) {
-            log.warn(e.getLocalizedMessage());
+            log.warn(e.getMessage());
             throw e;
         } catch (RedisConnectionFailureException e) {
             log.error("Error retrieving book list.", e);

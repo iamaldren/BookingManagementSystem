@@ -19,4 +19,3 @@ logging:
       app: TRACE
   file:
     name: application.log
-    path: /aldrenbobiles/Java_Projects/application
