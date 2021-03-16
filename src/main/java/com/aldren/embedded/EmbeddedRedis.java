@@ -1,5 +1,6 @@
 package com.aldren.embedded;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import redis.embedded.RedisServer;
 
@@ -8,6 +9,7 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 @Component
+@ConditionalOnProperty(prefix = "embedded", name = "redis", havingValue = "true")
 public class EmbeddedRedis {
 
     private RedisServer redisServer;

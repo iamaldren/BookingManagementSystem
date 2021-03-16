@@ -9,3 +9,5 @@ spring:
 book:
   maximumBorrowedByUser: 5
   borrowDuration: 30
+embedded:
+  redis: true
