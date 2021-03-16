@@ -69,4 +69,9 @@ public class BookController {
         return borrowedService.borrowBook(borrowedRequest);
     }
 
+    @PostMapping(value = "/books/return")
+    public BorrowedResponse returnBook(@RequestBody BorrowedRequest borrowedRequest) {
+        return borrowedService.returnBook(borrowedRequest);
+    }
+
 }

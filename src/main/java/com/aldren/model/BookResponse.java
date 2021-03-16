@@ -14,6 +14,7 @@ public class BookResponse {
     private String bookId;
     private String bookName;
     private String toBeReturnedDate;
+    private String returnedDate;
     private String remarks;
 
 }

@@ -11,4 +11,6 @@ public interface BorrowedRepository extends CrudRepository<Borrowed, String> {
 
     List<Borrowed> findByUserIdAndReturnedDateNotNull(String userId);
 
+    List<Borrowed> findByByBookIdIn(List<String> bookIds);
+
 }
