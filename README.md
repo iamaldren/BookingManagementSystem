@@ -72,7 +72,7 @@ logging:
     ```
 4. After finishing the build, execute the command below to run the application.
     ```sh
-    java -jar /build/libs/BookManagementSystem-1.0-SNAPSHOT.jar
+    java -jar /target/BookManagementSystem-1.0-SNAPSHOT.jar
     ```
 
 ## BookingManagementSystem Application
