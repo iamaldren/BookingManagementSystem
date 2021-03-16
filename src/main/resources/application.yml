@@ -10,4 +10,13 @@ book:
   maximumBorrowedByUser: 5
   borrowDuration: 30
 embedded:
-  redis: true
+  redis: false
+logging:
+  level:
+    org:
+      springframework: INFO
+    io:
+      app: TRACE
+  file:
+    name: application.log
+    path: /aldrenbobiles/Java_Projects/application

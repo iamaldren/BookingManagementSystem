@@ -11,6 +11,7 @@ import com.aldren.repository.BookRepository;
 import com.aldren.repository.BorrowedRepository;
 import com.aldren.repository.UserRepository;
 import com.aldren.util.AppConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @EnableConfigurationProperties({BookProperties.class})
 public class BorrowedService {
 
@@ -43,8 +45,12 @@ public class BorrowedService {
     }
 
     public BorrowedResponse borrowBook(BorrowedRequest borrowedRequest) {
+        log.info(String.format("Borrowing book for user %s", borrowedRequest.getUserId()));
+
         if(!isUserValid(borrowedRequest.getUserId())) {
-            return buildBorrowedResponse(borrowedRequest.getUserId(), String.format("User %s doesn't exists.", borrowedRequest.getUserId()));
+            String errorMessage = String.format("User %s doesn't exists.", borrowedRequest.getUserId());
+            log.warn(errorMessage);
+            return buildBorrowedResponse(borrowedRequest.getUserId(), errorMessage);
         }
 
         if(borrowedRequest.getBookIds().length > bookProperties.getMaximumBorrowedByUser()) {
@@ -61,9 +67,6 @@ public class BorrowedService {
         LocalDateTime borrowedDate = getCurrentLocalDateTime();
         String expiryDate = borrowedDate.plusDays(bookProperties.getBorrowDuration()).toString();
 
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("expiryDate", expiryDate);
-
         List<BookResponse> bookResponseList = Arrays.stream(borrowedRequest.getBookIds())
                 .map(bookId -> buildBorrowedBookResponse(bookId, expiryDate, borrowedBookIds, ACTION_BORROW))
                 .collect(Collectors.toList());
@@ -74,8 +77,12 @@ public class BorrowedService {
     }
 
     public BorrowedResponse returnBook(BorrowedRequest borrowedRequest) {
+        log.info(String.format("Returning book for user %s", borrowedRequest.getUserId()));
+
         if(!isUserValid(borrowedRequest.getUserId())) {
-            return buildBorrowedResponse(borrowedRequest.getUserId(), String.format("User %s doesn't exists.", borrowedRequest.getUserId()));
+            String errorMessage = String.format("User %s doesn't exists.", borrowedRequest.getUserId());
+            log.warn(errorMessage);
+            return buildBorrowedResponse(borrowedRequest.getUserId(), errorMessage);
         }
 
         List<String> returnedBookIds = new ArrayList<>();
@@ -150,6 +157,7 @@ public class BorrowedService {
             switch(action) {
                 case ACTION_BORROW:
                     if(book.getStatus().equals(AppConstants.BOOK_STATUS_BORROWED)) {
+                        log.warn(String.format("Book with ID of %s is lend out.", book.getId()));
                         return BookResponse.builder()
                                 .bookId(book.getId())
                                 .bookName(book.getName())
@@ -166,6 +174,7 @@ public class BorrowedService {
             return bookResponseBuilder.build();
         }
 
+        log.warn(String.format("Book with ID of %s is not found.", bookId));
         return BookResponse.builder()
                 .bookId(bookId)
                 .remarks("No book found")
@@ -188,7 +197,9 @@ public class BorrowedService {
         int numOfBooksThatCanBorrow = bookProperties.getMaximumBorrowedByUser() - borrowedList.size();
 
         if(numOfBooksBorrowed > numOfBooksThatCanBorrow) {
-            return String.format("User %s has %d books borrowed, a user can only borrow up to maximum of 5 books.", userId, borrowedList.size());
+            String message = String.format("User %s has %1$d books borrowed, a user can only borrow up to maximum of %2$d books.", userId, borrowedList.size(), bookProperties.getMaximumBorrowedByUser());
+            log.warn(message);
+            return message;
         }
 
         return "";
