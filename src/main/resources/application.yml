@@ -10,7 +10,7 @@ book:
   maximumBorrowedByUser: 5
   borrowDuration: 30
 embedded:
-  redis: false
+  redis: true
 logging:
   level:
     org:
