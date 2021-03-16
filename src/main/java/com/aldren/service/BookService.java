@@ -42,7 +42,12 @@ public class BookService {
 
     public void saveBook(Book book) {
         book.setId(UUID.randomUUID().toString());
-        book.setIsbn(BookUtil.makeISBN());
+
+        if(book.getIsbn() == null) {
+            book.setIsbn(BookUtil.makeISBN());
+        }
+
+        book.setStatus(AppConstants.BOOK_STATUS_AVAILABLE);
         bookRepository.save(book);
     }
 

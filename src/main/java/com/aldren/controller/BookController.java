@@ -2,7 +2,10 @@ package com.aldren.controller;
 
 import com.aldren.entity.Book;
 import com.aldren.exception.RecordNotFoundException;
+import com.aldren.model.BorrowedRequest;
+import com.aldren.model.BorrowedResponse;
 import com.aldren.service.BookService;
+import com.aldren.service.BorrowedService;
 import com.aldren.util.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -16,9 +19,12 @@ import java.util.Optional;
 public class BookController {
 
     private BookService bookService;
+    private BorrowedService borrowedService;
 
-    public BookController(@Autowired BookService bookService) {
+    public BookController(@Autowired BookService bookService,
+                          @Autowired BorrowedService borrowedService) {
         this.bookService = bookService;
+        this.borrowedService = borrowedService;
     }
 
     @GetMapping(value = "/books")
@@ -56,6 +62,11 @@ public class BookController {
     @DeleteMapping(value = "/books/{id}")
     public void deleteBook(@PathVariable String id) throws RecordNotFoundException {
         bookService.deleteBook(id);
+    }
+
+    @PostMapping(value = "/books/borrow")
+    public BorrowedResponse borrowBook(@RequestBody BorrowedRequest borrowedRequest) {
+        return borrowedService.borrowBook(borrowedRequest);
     }
 
 }
