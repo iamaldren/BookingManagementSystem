@@ -2,12 +2,14 @@ package com.aldren.service;
 
 import com.aldren.entity.Book;
 import com.aldren.entity.Borrowed;
+import com.aldren.entity.User;
 import com.aldren.model.BookResponse;
 import com.aldren.model.BorrowedRequest;
 import com.aldren.model.BorrowedResponse;
 import com.aldren.properties.BookProperties;
 import com.aldren.repository.BookRepository;
 import com.aldren.repository.BorrowedRepository;
+import com.aldren.repository.UserRepository;
 import com.aldren.util.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,16 +27,24 @@ public class BorrowedService {
     private BorrowedRepository borrowedRepository;
     private BookRepository bookRepository;
     private BookProperties bookProperties;
+    private UserRepository userRepository;
 
     public BorrowedService(@Autowired BorrowedRepository borrowedRepository,
                            @Autowired BookRepository bookRepository,
-                           @Autowired BookProperties bookProperties) {
+                           @Autowired BookProperties bookProperties,
+                           @Autowired UserRepository userRepository) {
         this.borrowedRepository = borrowedRepository;
         this.bookRepository = bookRepository;
         this.bookProperties = bookProperties;
+        this.userRepository = userRepository;
     }
 
     public BorrowedResponse borrowBook(BorrowedRequest borrowedRequest) {
+        Optional<User> optionalUser = userRepository.findById(borrowedRequest.getUserId());
+        if(!optionalUser.isPresent()) {
+            return buildBorrowedResponse(borrowedRequest.getUserId(), String.format("User %s doesn't exists.", borrowedRequest.getUserId()));
+        }
+
         if(borrowedRequest.getBookIds().length > bookProperties.getMaximumBorrowedByUser()) {
             return buildBorrowedResponse(borrowedRequest.getUserId(), String.format("Users can only borrow up to a maximum of %d books", bookProperties.getMaximumBorrowedByUser()));
         }
