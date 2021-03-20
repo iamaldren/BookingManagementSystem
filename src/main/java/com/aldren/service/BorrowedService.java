@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +34,8 @@ public class BorrowedService {
 
     private static final String ACTION_BORROW = "borrow";
     private static final String ACTION_RETURN = "return";
+
+    private ReentrantLock mutex = new ReentrantLock();
 
     public BorrowedService(@Autowired BorrowedRepository borrowedRepository,
                            @Autowired BookRepository bookRepository,
@@ -62,18 +65,23 @@ public class BorrowedService {
             return buildBorrowedResponse(borrowedRequest.getUserId(), errorMessage);
         }
 
-        List<String> borrowedBookIds = new ArrayList<>();
+        try {
+            mutex.lock();
 
-        LocalDateTime borrowedDate = getCurrentLocalDateTime();
-        String expiryDate = borrowedDate.plusDays(bookProperties.getBorrowDuration()).toString();
+            List<String> borrowedBookIds = new ArrayList<>();
+            LocalDateTime borrowedDate = getCurrentLocalDateTime();
+            String expiryDate = borrowedDate.plusDays(bookProperties.getBorrowDuration()).toString();
 
-        List<BookResponse> bookResponseList = Arrays.stream(borrowedRequest.getBookIds())
-                .map(bookId -> buildBorrowedBookResponse(bookId, expiryDate, borrowedBookIds, ACTION_BORROW))
-                .collect(Collectors.toList());
+            List<BookResponse> bookResponseList = Arrays.stream(borrowedRequest.getBookIds())
+                    .map(bookId -> buildBorrowedBookResponse(bookId, expiryDate, borrowedBookIds, ACTION_BORROW))
+                    .collect(Collectors.toList());
 
-        setBookToBorrowed(borrowedBookIds, borrowedRequest.getUserId(), borrowedDate.toString(), expiryDate);
+            setBookToBorrowed(borrowedBookIds, borrowedRequest.getUserId(), borrowedDate.toString(), expiryDate);
 
-        return buildBorrowedResponse(borrowedRequest.getUserId(), null, bookResponseList);
+            return buildBorrowedResponse(borrowedRequest.getUserId(), null, bookResponseList);
+        } finally {
+            mutex.unlock();
+        }
     }
 
     public BorrowedResponse returnBook(BorrowedRequest borrowedRequest) {
