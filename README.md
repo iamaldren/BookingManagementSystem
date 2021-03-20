@@ -243,7 +243,6 @@ Response Body:
 ## Some improvements that can be done
 - Add a penalty logic when the user wasn't able to return the book on its expiry date.
 - The `/borrow` and `/return` endpoint is not following RESTful URL standards, we should not use verbs in the URL path.
-- Handle concurrency so multiple users can access the system simultaneously
 - Add JUnit
 
 ## Tech Stack
