@@ -190,11 +190,12 @@ curl -X DELETE http://localhost:8080/api/v1/users
 - In the book payload of the response, it will include the date the book is to be returned.
 
 ```sh
-PUT /api/v1/books/borrow
+PUT /api/v1/books/operations
 
 Request Body:
 {
     "userId": "tonystark",
+    "operation": "borrow",
     "bookIds": ["a0de1c74-e759-4493-9980-9e9b6edb2ab5"]
 }
 
@@ -219,11 +220,12 @@ Response Body:
 - In the book payload of the response, it will include the date it was returned.
 
 ```sh
-PUT /api/v1/books/return
+PUT /api/v1/books/operations
 
 Request Body:
 {
     "userId": "tonystark",
+    "operation": "return",
     "bookIds": ["a0de1c74-e759-4493-9980-9e9b6edb2ab5"]
 }
 
