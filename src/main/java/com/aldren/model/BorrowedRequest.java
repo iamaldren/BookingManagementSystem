@@ -14,6 +14,7 @@ import lombok.Getter;
 public class BorrowedRequest {
 
     private String userId;
+    private String operation;
     private String[] bookIds;
 
 }

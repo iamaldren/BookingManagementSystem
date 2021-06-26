@@ -1,6 +1,7 @@
 package com.aldren.controller;
 
 import com.aldren.entity.Book;
+import com.aldren.enums.Operation;
 import com.aldren.exception.BadRequestException;
 import com.aldren.exception.DefaultInternalServerException;
 import com.aldren.exception.RecordNotFoundException;
@@ -111,23 +112,19 @@ public class BookController {
         }
     }
 
-    @PostMapping(value = "/books/borrow")
-    public BorrowedResponse borrowBook(@RequestBody BorrowedRequest borrowedRequest) throws DefaultInternalServerException {
+    @PostMapping(value = "/books/operations")
+    public BorrowedResponse bookOperations(@RequestBody BorrowedRequest borrowedRequest) throws DefaultInternalServerException {
         try {
-            return borrowedService.borrowBook(borrowedRequest);
-        } catch (RedisConnectionFailureException e) {
-            log.error("Error borrowing book/s.", e);
-            throw new DefaultInternalServerException(e.getLocalizedMessage());
-        } catch (Exception e) {
-            log.error(e.getLocalizedMessage(), e);
-            throw new DefaultInternalServerException(e.getLocalizedMessage());
-        }
-    }
+            Operation operation = Operation.get(borrowedRequest.getOperation());
 
-    @PostMapping(value = "/books/return")
-    public BorrowedResponse returnBook(@RequestBody BorrowedRequest borrowedRequest) throws DefaultInternalServerException {
-        try {
-            return borrowedService.returnBook(borrowedRequest);
+            switch (operation) {
+                case BORROW:
+                    return borrowedService.borrowBook(borrowedRequest);
+                case RETURN:
+                    return borrowedService.returnBook(borrowedRequest);
+                default:
+                    throw new BadRequestException(String.format("The operation \"%s\" is not supported.", borrowedRequest.getOperation()));
+            }
         } catch (RedisConnectionFailureException e) {
             log.error("Error returning book/s.", e);
             throw new DefaultInternalServerException(e.getLocalizedMessage());
