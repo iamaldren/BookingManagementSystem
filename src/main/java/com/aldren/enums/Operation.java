@@ -6,7 +6,8 @@ import java.util.Map;
 public enum Operation {
 
     BORROW("borrow"),
-    RETURN("return");
+    RETURN("return"),
+    DEFAULT("default");
 
     private String operation;
 
@@ -27,7 +28,11 @@ public enum Operation {
     }
 
     public static Operation get(String operation) {
-        return lookup.get(operation);
+        if(lookup.containsKey(operation)) {
+            return lookup.get(operation);
+        }
+
+        return lookup.get("default");
     }
 
 }
