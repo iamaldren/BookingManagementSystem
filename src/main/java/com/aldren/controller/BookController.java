@@ -113,7 +113,7 @@ public class BookController {
     }
 
     @PostMapping(value = "/books/operations")
-    public BorrowedResponse bookOperations(@RequestBody BorrowedRequest borrowedRequest) throws DefaultInternalServerException {
+    public BorrowedResponse bookOperations(@RequestBody BorrowedRequest borrowedRequest) throws DefaultInternalServerException, BadRequestException {
         try {
             Operation operation = Operation.get(borrowedRequest.getOperation());
 
@@ -125,6 +125,9 @@ public class BookController {
                 default:
                     throw new BadRequestException(String.format("The operation \"%s\" is not supported.", borrowedRequest.getOperation()));
             }
+        } catch (BadRequestException e) {
+            log.warn(e.getMessage());
+            throw e;
         } catch (RedisConnectionFailureException e) {
             log.error("Error returning book/s.", e);
             throw new DefaultInternalServerException(e.getLocalizedMessage());
