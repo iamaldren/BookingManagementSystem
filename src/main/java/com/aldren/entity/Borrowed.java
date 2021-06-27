@@ -23,5 +23,6 @@ public class Borrowed {
     private String expiryDate;
     @Indexed
     private String returnedDate;
+    private long penaltyCents;
 
 }

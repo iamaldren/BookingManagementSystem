@@ -9,7 +9,7 @@ spring:
 book:
   maximumBorrowedByUser: 5
   borrowDuration: 30
-  penalty: 10
+  penaltyCents: 1000
 embedded:
   redis: true
 logging:
