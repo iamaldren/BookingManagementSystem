@@ -9,6 +9,7 @@ spring:
 book:
   maximumBorrowedByUser: 5
   borrowDuration: 30
+  penalty: 10
 embedded:
   redis: true
 logging:
