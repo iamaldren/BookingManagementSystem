@@ -246,6 +246,7 @@ Response Body:
 - Add JUnit
 - Switch to use a relational DB for data storage, and use Redis as a cache
 - Add caching mechanism
+- Integrate with `codecov` and `travis-ci`
 
 ## Tech Stack
 - Java 8
