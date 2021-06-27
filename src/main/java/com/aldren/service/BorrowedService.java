@@ -3,6 +3,7 @@ package com.aldren.service;
 import com.aldren.entity.Book;
 import com.aldren.entity.Borrowed;
 import com.aldren.entity.User;
+import com.aldren.enums.Operation;
 import com.aldren.model.BookResponse;
 import com.aldren.model.BorrowedRequest;
 import com.aldren.model.BorrowedResponse;
@@ -31,9 +32,6 @@ public class BorrowedService {
     private BookRepository bookRepository;
     private BookProperties bookProperties;
     private UserRepository userRepository;
-
-    private static final String ACTION_BORROW = "borrow";
-    private static final String ACTION_RETURN = "return";
 
     private ReentrantLock mutex = new ReentrantLock();
 
@@ -73,7 +71,7 @@ public class BorrowedService {
             String expiryDate = borrowedDate.plusDays(bookProperties.getBorrowDuration()).toString();
 
             List<BookResponse> bookResponseList = Arrays.stream(borrowedRequest.getBookIds())
-                    .map(bookId -> buildBorrowedBookResponse(bookId, expiryDate, borrowedBookIds, ACTION_BORROW))
+                    .map(bookId -> buildBorrowedBookResponse(bookId, expiryDate, borrowedBookIds, Operation.BORROW))
                     .collect(Collectors.toList());
 
             setBookToBorrowed(borrowedBookIds, borrowedRequest.getUserId(), borrowedDate.toString(), expiryDate);
@@ -98,7 +96,7 @@ public class BorrowedService {
         LocalDateTime localDateTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         List<BookResponse> bookResponseList = Arrays.stream(borrowedRequest.getBookIds())
-                .map(bookId -> buildBorrowedBookResponse(bookId, localDateTime.toString(), returnedBookIds, ACTION_RETURN))
+                .map(bookId -> buildBorrowedBookResponse(bookId, localDateTime.toString(), returnedBookIds, Operation.RETURN))
                 .collect(Collectors.toList());
 
         setBookToAvailable(returnedBookIds, borrowedRequest.getUserId(), localDateTime.toString());
@@ -153,7 +151,7 @@ public class BorrowedService {
         borrowedRepository.saveAll(borrowedList);
     }
 
-    private BookResponse buildBorrowedBookResponse(String bookId, String actionDate, List<String> bookIds, String action) {
+    private BookResponse buildBorrowedBookResponse(String bookId, String actionDate, List<String> bookIds, Operation operation) {
         Optional<Book> optionalBook = bookRepository.findById(bookId);
 
         if(optionalBook.isPresent()) {
@@ -162,8 +160,8 @@ public class BorrowedService {
                     .bookId(book.getId())
                     .bookName(book.getName());
 
-            switch(action) {
-                case ACTION_BORROW:
+            switch(operation) {
+                case BORROW:
                     if(book.getStatus().equals(AppConstants.BOOK_STATUS_BORROWED)) {
                         log.warn(String.format("Book with ID of %s is lend out.", book.getId()));
                         return BookResponse.builder()
