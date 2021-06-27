@@ -16,5 +16,6 @@ public class BorrowedResponse {
     private String userId;
     private String message;
     private List<BookResponse> bookResponseList;
+    private Float penalty;
 
 }
