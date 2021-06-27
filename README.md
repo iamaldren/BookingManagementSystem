@@ -243,7 +243,6 @@ Response Body:
 ```
 
 ## Some improvements that can be done
-- Add a penalty logic when the user wasn't able to return the book on its expiry date.
 - Add JUnit
 - Switch to use a relational DB for data storage, and use Redis as a cache
 - Add caching mechanism

@@ -11,5 +11,6 @@ public class BookProperties {
 
     private int maximumBorrowedByUser;
     private int borrowDuration;
+    private long penalty;
 
 }

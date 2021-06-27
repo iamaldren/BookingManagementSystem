@@ -17,9 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -99,9 +102,13 @@ public class BorrowedService {
                 .map(bookId -> buildBorrowedBookResponse(bookId, localDateTime.toString(), returnedBookIds, Operation.RETURN))
                 .collect(Collectors.toList());
 
-        setBookToAvailable(returnedBookIds, borrowedRequest.getUserId(), localDateTime.toString());
+        long penalty = setBookToAvailableAndCalculatePenalty(returnedBookIds, localDateTime.toString());
 
-        return buildBorrowedResponse(borrowedRequest.getUserId(), null, bookResponseList);
+        return BorrowedResponse.builder()
+                .userId(borrowedRequest.getUserId())
+                .penalty(penalty/100)
+                .bookResponseList(bookResponseList)
+                .build();
     }
 
     private BorrowedResponse buildBorrowedResponse(String userId, String message) {
@@ -138,17 +145,30 @@ public class BorrowedService {
         borrowedRepository.saveAll(borrowedList);
     }
 
-    private void setBookToAvailable(List<String> returnedBookIds, String userId, String returnedDate) {
+    private long setBookToAvailableAndCalculatePenalty(List<String> returnedBookIds, String returnedDate) {
         List<Book> bookList = (List<Book>) bookRepository.findAllById(returnedBookIds);
-        List<Borrowed> borrowedList = borrowedRepository.findByUserIdAndReturnedDate(userId, "");
+        List<Borrowed> borrowedList = (List<Borrowed>) borrowedRepository.findAllById(returnedBookIds);
 
         bookList.forEach(book -> book.setStatus(AppConstants.BOOK_STATUS_AVAILABLE));
+
+        AtomicLong penalty = new AtomicLong(0);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
         borrowedList.forEach(borrowed -> {
+            LocalDateTime expiryDateTime = LocalDateTime.parse(borrowed.getExpiryDate(), formatter);
+            LocalDateTime returnedDateTime = LocalDateTime.parse(returnedDate, formatter);
+
+            if(Duration.between(returnedDateTime, expiryDateTime).toDays() > 0) {
+                borrowed.setPenaltyCents(bookProperties.getPenalty());
+                penalty.getAndAdd(bookProperties.getPenalty());
+            }
+
             borrowed.setReturnedDate(returnedDate);
         });
 
         bookRepository.saveAll(bookList);
         borrowedRepository.saveAll(borrowedList);
+
+        return penalty.get();
     }
 
     private BookResponse buildBorrowedBookResponse(String bookId, String actionDate, List<String> bookIds, Operation operation) {
